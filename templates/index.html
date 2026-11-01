@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero">
+    <h1>发现你的技能互换搭档</h1>
+    <p>你教 TA <b>{{ me.teach }}</b>，TA 教你 <b>{{ me.learn }}</b></p>
+</div>
+
+<div class="match-list">
+    <h2>为你推荐 ({{ matches|length }})</h2>
+    {% for user in matches %}
+    <div class="card match-card">
+        <div class="user-info">
+            <span class="avatar">{{ user.avatar }}</span>
+            <div>
+                <h3>{{ user.name }} <span class="city">{{ user.city }}</span></h3>
+                <p class="reason">💡 {{ user.match_reason }}</p>
+            </div>
+        </div>
+        <div class="skills">
+            <span class="tag teach">可教: {{ user.teach }}</span>
+            <span class="tag learn">想学: {{ user.learn }}</span>
+        </div>
+        <a href="{{ url_for('make_swap', target_id=user.id) }}" class="btn btn-primary">发起互换邀约</a>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>暂时没有发现完美匹配的搭档，去修改一下你的技能标签吧！</p>
+        <a href="{{ url_for('profile') }}" class="btn">修改我的技能</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

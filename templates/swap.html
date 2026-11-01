@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>我的互换契约</h2>
+<div class="swap-list">
+    {% for c in contracts %}
+    <div class="card swap-card">
+        <div class="swap-header">
+            <h3>与 {{ c.other_name }} 的互换</h3>
+            <span class="status {{ 'active' if c.status == '进行中' else 'pending' }}">{{ c.status }}</span>
+        </div>
+        <div class="swap-details">
+            <p>🤝 互换内容：我教 <b>{{ c.skill_a if c.user_a == me.id else c.skill_b }}</b>，学 <b>{{ c.skill_b if c.user_a == me.id else c.skill_a }}</b></p>
+        </div>
+        <div class="swap-actions">
+            {% if c.status == '进行中' %}
+            <button class="btn btn-small">打卡进度</button>
+            <button class="btn btn-small btn-outline">完成并互评</button>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <p>还没有互换记录，快去首页匹配吧！</p>
+    {% endfor %}
+</div>
+{% endblock %}
