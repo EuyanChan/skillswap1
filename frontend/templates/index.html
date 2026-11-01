@@ -1,0 +1,244 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSwap - 让技能自由交换</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <!-- 顶部导航 -->
+    <header class="navbar">
+        <div class="logo">
+            <div class="logo-icon">S</div>
+            SkillSwap
+        </div>
+
+        <nav class="nav-links">
+            <button class="nav-link active" data-page="hall">技能大厅</button>
+            <button class="nav-link" data-page="recommend">为我推荐</button>
+            <button class="nav-link" data-page="exchanges">我的交换</button>
+            <button class="nav-link" data-page="profile">个人中心</button>
+        </nav>
+
+        <div class="nav-actions" id="navActions">
+            <button class="btn btn-outline" id="loginBtn">登录</button>
+            <button class="btn btn-primary" id="registerBtn">注册</button>
+        </div>
+    </header>
+
+    <!-- 首页横幅 -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-tag">✨ 分享技能 · 收获成长</div>
+            <h1>让每一种技能<br>都成为连接彼此的桥梁</h1>
+            <p>
+                在 SkillSwap，你可以教别人自己擅长的技能，
+                也可以找到你想学习的知识。用技能交换技能，让成长更加自由。
+            </p>
+
+            <button class="btn btn-primary" id="exploreBtn">
+                探索技能 →
+            </button>
+
+            <div class="stats">
+                <div>
+                    <div class="stat-number">128+</div>
+                    <div class="stat-label">技能分享者</div>
+                </div>
+                <div>
+                    <div class="stat-number">256+</div>
+                    <div class="stat-label">技能资源</div>
+                </div>
+                <div>
+                    <div class="stat-number">86+</div>
+                    <div class="stat-label">成功交换</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-visual">🤝</div>
+    </section>
+
+    <!-- 主内容 -->
+    <main class="main-container">
+
+        <!-- 技能大厅 -->
+        <section class="page-panel active" id="hallPage">
+            <div class="section-heading">
+                <div>
+                    <h2>发现有趣的技能</h2>
+                    <p>找到你感兴趣的技能，开启一次知识交换</p>
+                </div>
+                <button class="btn btn-primary" id="publishBtn">
+                    + 发布技能
+                </button>
+            </div>
+
+            <div class="toolbar">
+                <div class="search-box">
+                    <span>🔍</span>
+                    <input type="text" id="searchInput" placeholder="搜索技能名称或关键词...">
+                </div>
+
+                <div class="filters" id="filters">
+                    <button class="filter-btn active" data-category="全部">全部</button>
+                    <button class="filter-btn" data-category="编程技术">编程技术</button>
+                    <button class="filter-btn" data-category="语言学习">语言学习</button>
+                    <button class="filter-btn" data-category="艺术设计">艺术设计</button>
+                    <button class="filter-btn" data-category="生活兴趣">生活兴趣</button>
+                </div>
+            </div>
+
+            <div class="skill-grid" id="skillGrid"></div>
+        </section>
+
+        <!-- 推荐页面 -->
+        <section class="page-panel" id="recommendPage">
+            <div class="section-heading">
+                <div>
+                    <h2>为你推荐</h2>
+                    <p>根据技能方向，发现值得尝试的交换机会</p>
+                </div>
+            </div>
+            <div class="skill-grid" id="recommendGrid"></div>
+        </section>
+
+        <!-- 交换页面 -->
+        <section class="page-panel" id="exchangesPage">
+            <div class="section-heading">
+                <div>
+                    <h2>我的交换</h2>
+                    <p>查看和管理你的技能交换</p>
+                </div>
+            </div>
+            <div class="exchange-panel">
+                <div class="empty-icon">🤝</div>
+                <h3>还没有技能交换</h3>
+                <p>去技能大厅寻找感兴趣的技能，开启第一次交换吧！</p>
+                <button class="btn btn-primary" id="goHallBtn">浏览技能</button>
+            </div>
+        </section>
+
+        <!-- 个人中心 -->
+        <section class="page-panel" id="profilePage">
+            <div class="section-heading">
+                <div>
+                    <h2>个人中心</h2>
+                    <p>管理你的账户和技能信息</p>
+                </div>
+            </div>
+            <div class="exchange-panel" id="profileContent">
+                <div class="empty-icon">👤</div>
+                <h3>欢迎来到 SkillSwap</h3>
+                <p>登录后即可管理个人资料和发布的技能。</p>
+                <button class="btn btn-primary" id="profileLoginBtn">立即登录</button>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        SkillSwap © 2026 · 让技能自由交换，让成长持续发生
+    </footer>
+
+    <!-- 登录注册弹窗 -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="authTitle">欢迎回来</h2>
+                <button class="close-btn" data-close="authModal">×</button>
+            </div>
+
+            <form id="authForm">
+                <div class="form-group" id="usernameGroup" style="display:none;">
+                    <label>用户名</label>
+                    <input type="text" id="authUsername" placeholder="请输入用户名">
+                </div>
+
+                <div class="form-group">
+                    <label>邮箱</label>
+                    <input type="email" id="authEmail" placeholder="请输入邮箱" required>
+                </div>
+
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" id="authPassword" placeholder="请输入密码" required minlength="6">
+                </div>
+
+                <button type="submit" class="btn btn-primary modal-submit" id="authSubmit">
+                    登录
+                </button>
+            </form>
+
+            <div class="modal-tip">
+                <span id="authSwitch">还没有账户？立即注册</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 发布技能弹窗 -->
+    <div class="modal-overlay" id="publishModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="publishModalTitle">发布我的技能</h2>
+                <button class="close-btn" data-close="publishModal">×</button>
+            </div>
+
+            <form id="publishForm">
+                <div class="form-group">
+                    <label>技能名称</label>
+                    <input type="text" id="skillName" placeholder="例如：Python 编程" required>
+                </div>
+
+                <div class="form-group">
+                    <label>技能分类</label>
+                    <select id="skillCategory" required>
+                        <option value="编程技术">编程技术</option>
+                        <option value="语言学习">语言学习</option>
+                        <option value="艺术设计">艺术设计</option>
+                        <option value="生活兴趣">生活兴趣</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>技能介绍</label>
+                    <textarea id="skillDescription" placeholder="介绍一下你可以分享什么..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>我希望交换的技能</label>
+                    <input type="text" id="wantedSkill" placeholder="例如：英语口语、摄影">
+                </div>
+
+                <button type="submit" class="btn btn-primary modal-submit">
+                    <span id="publishSubmitText">发布技能</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 技能详情弹窗 -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>技能详情</h2>
+                <button class="close-btn" data-close="detailModal">×</button>
+            </div>
+
+            <div id="detailContent"></div>
+            <button class="btn btn-primary modal-submit" id="requestExchangeBtn">
+                申请技能交换
+            </button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+    "users": [
+        {
+            "id": "33508db6-c62b-4fb1-9f12-f473fff7bff2",
+            "username": "testuser",
+            "email": "test@example.com",
+            "password": "scrypt:32768:8:1$ob0GJYRd5zKT41Q5$30b1c011d175426c526d44520cbd87c21ccd30c2f39ceb672b1b80d60071a7dbb61aafe5075f24b572a6b7202bc79121c1ce0ed87529732f4f69fd4ad4473614"
+        },
+        {
+            "id": "7f170405-ac4c-4290-b762-d4bcc97f3c5b",
+            "username": "Maxine",
+            "email": "maxine@mail.com",
+            "password": "scrypt:32768:8:1$lmOBUgciJNCBgyg0$7021f3d8e158cefa5b8436e24ddf7af68aa6addc608f0b571575e7b75237e114df9fe94aaf125b4e9288bc37a5e00e22dc6aad0d960bf7c56df2c645620b8c92"
+        }
+    ]
+}
