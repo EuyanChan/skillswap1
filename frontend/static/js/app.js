@@ -10,7 +10,7 @@
             let currentUser = null;
 
             const skillGrid = document.getElementById("skillGrid");
-            const recommendGrid = document.getElementById("recommendGrid");
+            //const recommendGrid = document.getElementById("recommendGrid");
             const searchInput = document.getElementById("searchInput");
 
             function showToast(message) {
@@ -137,10 +137,271 @@
                 renderProfile();
             }
 
-            function renderRecommendations() {
-                recommendGrid.innerHTML = skills.slice(0, 3)
-                    .map(createSkillCard).join("");
+            async function renderRecommendations() {
+                const container = document.getElementById("recommendationsContainer");
+
+                if (!container) {
+                    return;
+                }
+
+                container.innerHTML = `
+                    <p class="empty-message">正在寻找适合你的技能交换伙伴...</p>
+                `;
+
+                try {
+                    const result = await apiRequest("/api/matching/");
+
+                    if (!result.success) {
+                        container.innerHTML = `
+                            <p class="empty-message">暂时无法获取推荐</p>
+                        `;
+                        return;
+                    }
+
+                    const matches = result.matches || [];
+
+                    if (matches.length === 0) {
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <div class="empty-icon">🔍</div>
+                                <h3>暂时没有匹配伙伴</h3>
+                                <p>完善你的技能和学习需求，发现更多交换机会吧！</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    container.innerHTML = "";
+
+                    matches.forEach(function (match) {
+                        const card = document.createElement("div");
+                        card.className = "recommendation-card";
+
+                        const header = document.createElement("div");
+                        header.className = "recommendation-header";
+
+                        const avatar = document.createElement("div");
+                        avatar.className = "recommendation-avatar";
+                        avatar.textContent = "👤";
+
+                        const userInfo = document.createElement("div");
+                        userInfo.className = "recommendation-user-info";
+
+                        const username = document.createElement("h3");
+                        username.textContent = match.username;
+
+                        const matchType = document.createElement("span");
+                        matchType.className = "match-badge";
+                        matchType.textContent = match.match_type;
+
+                        userInfo.appendChild(username);
+                        userInfo.appendChild(matchType);
+
+                        header.appendChild(avatar);
+                        header.appendChild(userInfo);
+
+                        const skills = document.createElement("div");
+                        skills.className = "recommendation-skills";
+
+                        const mySkill = document.createElement("p");
+                        mySkill.textContent = "你能教：" + match.my_skill;
+
+                        const theirSkill = document.createElement("p");
+                        theirSkill.textContent = "对方能教：" + match.their_skill;
+
+                        skills.appendChild(mySkill);
+                        skills.appendChild(theirSkill);
+
+                        card.appendChild(header);
+                        card.appendChild(skills);
+
+                        // 申请交换按钮
+                        const applyButton = document.createElement("button");
+                        applyButton.className = "apply-exchange-btn";
+                        applyButton.textContent = "申请交换";
+
+                        applyButton.addEventListener("click", function () {
+                            createExchange(match);
+                        });
+
+                        card.appendChild(applyButton);
+
+                        container.appendChild(card);
+                    });
+
+                } catch (error) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <p>获取推荐失败，请稍后重试。</p>
+                        </div>
+                    `;
+
+                    console.error("加载匹配推荐失败：", error);
+                }
             }
+
+            async function createExchange(match) {
+                const confirmed = confirm(
+                    "确定向 " + match.username + " 发送交换申请吗？"
+                );
+
+                if (!confirmed) {
+                    return;
+                }
+
+                try {
+                    const result = await apiRequest(
+                        "/api/exchanges/",
+                        "POST",
+                        {
+                            receiver_id: match.user_id,
+                            my_skill: match.my_skill,
+                            their_skill: match.their_skill
+                        }
+                    );
+
+                    showToast(result.message);
+
+                } catch (error) {
+                    showToast(error.message);
+                }
+            }
+
+
+            let currentExchangeTab = "received";
+
+            async function loadExchanges() {
+                const container = document.getElementById("exchangesContainer");
+
+                if (!container) {
+                    return;
+                }
+
+                container.innerHTML = `
+                    <div class="exchange-panel">
+                        <p>正在加载交换申请...</p>
+                    </div>
+                `;
+
+                try {
+                    const result = await apiRequest("/api/exchanges/");
+
+                    const exchanges = result.exchanges || [];
+
+                    renderExchanges(exchanges);
+
+                } catch (error) {
+                    container.innerHTML = `
+                        <div class="exchange-panel">
+                            <h3>获取交换申请失败</h3>
+                            <p>${error.message}</p>
+                        </div>
+                    `;
+                }
+            }
+
+
+            function renderExchanges(exchanges) {
+                const container = document.getElementById("exchangesContainer");
+
+                if (!container) {
+                    return;
+                }
+
+                const filteredExchanges = exchanges.filter(function (exchange) {
+                    if (currentExchangeTab === "received") {
+                        return !exchange.is_sender;
+                    }
+
+                    return exchange.is_sender;
+                });
+
+                if (filteredExchanges.length === 0) {
+                    container.innerHTML = `
+                        <div class="exchange-panel">
+                            <div class="empty-icon">🤝</div>
+                            <h3>
+                                ${currentExchangeTab === "received"
+                                    ? "还没有收到交换申请"
+                                    : "还没有发出交换申请"}
+                            </h3>
+                            <p>去技能大厅或推荐页面寻找适合你的交换伙伴吧！</p>
+                            <button class="btn btn-primary" id="goHallBtn">
+                                浏览技能
+                            </button>
+                        </div>
+                    `;
+
+                    const goHallBtn = document.getElementById("goHallBtn");
+
+                    if (goHallBtn) {
+                        goHallBtn.addEventListener("click", function () {
+                            switchPage("hall");
+                        });
+                    }
+
+                    return;
+                }
+
+                container.innerHTML = "";
+
+                filteredExchanges.forEach(function (exchange) {
+                    const card = document.createElement("div");
+
+                    card.className = "exchange-card";
+
+                    const otherUsername = exchange.is_sender
+                        ? exchange.receiver_username
+                        : exchange.sender_username;
+
+                    const title = document.createElement("h3");
+
+                    title.textContent = otherUsername;
+
+                    const status = document.createElement("span");
+
+                    status.className = "exchange-status";
+
+                    status.textContent = exchange.status;
+
+                    const skills = document.createElement("div");
+
+                    skills.className = "exchange-skills";
+
+                    const mySkill = document.createElement("p");
+
+                    mySkill.textContent = "我提供：" + exchange.my_skill;
+
+                    const theirSkill = document.createElement("p");
+
+                    theirSkill.textContent = "对方提供：" + exchange.their_skill;
+
+                    card.appendChild(title);
+                    card.appendChild(status);
+                    card.appendChild(skills);
+
+                    skills.appendChild(mySkill);
+                    skills.appendChild(theirSkill);
+
+                    container.appendChild(card);
+                });
+            }
+
+
+            document.querySelectorAll(".exchange-tab").forEach(function (button) {
+                button.addEventListener("click", function () {
+                    currentExchangeTab = button.dataset.exchangeTab;
+
+                    document.querySelectorAll(".exchange-tab").forEach(function (tab) {
+                        tab.classList.toggle(
+                            "active",
+                            tab.dataset.exchangeTab === currentExchangeTab
+                        );
+                    });
+
+                    loadExchanges();
+                });
+            });
 
 
             async function switchPage(page) {
@@ -172,6 +433,11 @@
                         showToast("数据刷新失败：" + error.message);
                     }
                 }
+
+                if (page === "exchanges") {
+                    await loadExchanges();
+                }
+
             }
 
 
@@ -182,8 +448,41 @@
                     const result = await apiRequest("/api/auth/logout", "POST");
 
                     currentUser = null;
+
+                    // 更新导航栏
                     updateNavActions();
+
+                    // 清空个人中心
                     renderProfile();
+
+                    // 清空推荐页面
+                    const recommendContainer = document.getElementById("recommendationsContainer");
+
+                    if (recommendContainer) {
+                        recommendContainer.innerHTML = `
+                            <div class="empty-state">
+                                <div class="empty-icon">🔐</div>
+                                <h3>登录后查看技能推荐</h3>
+                                <p>登录后即可发现适合你的技能交换伙伴。</p>
+                            </div>
+                        `;
+                    }
+
+                    // 清空交换页面
+                    const exchangesContainer = document.getElementById("exchangesContainer");
+
+                    if (exchangesContainer) {
+                        exchangesContainer.innerHTML = `
+                            <div class="exchange-panel">
+                                <div class="empty-icon">🤝</div>
+                                <h3>登录后查看交换申请</h3>
+                                <p>登录后即可管理收到和发出的交换申请。</p>
+                            </div>
+                        `;
+                    }
+
+                    // 重新加载技能列表
+                    await loadSkills();
 
                     showToast(result.message);
 
@@ -191,6 +490,7 @@
                     showToast(error.message);
                 }
             }
+
 
 
             function renderProfile() {
@@ -258,11 +558,11 @@
                     });
                 });
 
-                document.querySelectorAll(".delete-skill-btn").forEach(function (button) {
-                    button.addEventListener("click", function () {
-                        showToast("下一步实现技能删除功能");
-                    });
+            document.querySelectorAll(".delete-skill-btn").forEach(function (button) {
+                button.addEventListener("click", function () {
+                    deleteSkill(button.dataset.id);
                 });
+            });
             }
 
 
@@ -288,6 +588,28 @@
                 document.getElementById("wantedSkill").value = skill.wanted;
 
                 openModal("publishModal");
+            }
+
+            async function deleteSkill(skillId) {
+                const confirmed = confirm("确定要删除这个技能吗？此操作无法撤销。");
+
+                if (!confirmed) {
+                    return;
+                }
+
+                try {
+                    const result = await apiRequest(
+                        "/api/skills/" + encodeURIComponent(skillId),
+                        "DELETE"
+                    );
+
+                    await loadSkills();
+
+                    showToast(result.message);
+
+                } catch (error) {
+                    showToast(error.message);
+                }
             }
 
             function updateNavActions() {
@@ -569,15 +891,14 @@
             });
 
             // 其他导航按钮
+
+            // 探索技能按钮
             document.getElementById("exploreBtn").addEventListener("click", function () {
-                document.getElementById("hallPage").scrollIntoView({
+                switchPage("hall");
+                window.scrollTo({
+                    top: 0,
                     behavior: "smooth"
                 });
-            });
-
-            document.getElementById("goHallBtn").addEventListener("click", function () {
-                switchPage("hall");
-                window.scrollTo({ top: 0, behavior: "smooth" });
             });
 
             // ESC 关闭弹窗
@@ -590,13 +911,8 @@
             });
 
 
-            // 页面初始化
-            loadSkills().catch(function (error) {
-                showToast("技能加载失败：" + error.message);
-            });
-            updateNavActions();
 
-            // 检查当前登录状态
+            // 页面初始化
             async function checkLoginStatus() {
                 try {
                     const result = await apiRequest("/api/auth/me");
@@ -605,12 +921,23 @@
 
                 } catch (error) {
                     currentUser = null;
-
                 }
 
+                // 根据当前登录状态更新导航栏
                 updateNavActions();
+
+                // 获取技能数据并更新页面
+                try {
+                    await loadSkills();
+                } catch (error) {
+                    showToast("技能加载失败：" + error.message);
+                }
+
+                // 更新个人中心
                 renderProfile();
             }
 
+            // 首次加载时先检查登录状态
             checkLoginStatus();
+
         });

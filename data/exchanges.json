@@ -1,0 +1,13 @@
+{
+    "exchanges": [
+        {
+            "id": "ad27e7c6-5738-4a0a-8a39-cc94fdbf545c",
+            "sender_id": "33508db6-c62b-4fb1-9f12-f473fff7bff2",
+            "receiver_id": "7f170405-ac4c-4290-b762-d4bcc97f3c5b",
+            "my_skill": "Python编程",
+            "their_skill": "摄影",
+            "status": "待处理",
+            "created_at": "2026-11-06T08:06:53.889538+00:00"
+        }
+    ]
+}

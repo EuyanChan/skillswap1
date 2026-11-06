@@ -4,6 +4,9 @@ import os
 
 from backend.auth import auth_bp
 from backend.skills import skills_bp
+from backend.matching import matching_bp
+from backend.exchanges import exchanges_bp
+
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -25,6 +28,14 @@ app.secret_key = os.environ.get(
 # 注册用户认证蓝图
 app.register_blueprint(auth_bp, url_prefix="/api/auth")
 app.register_blueprint(skills_bp, url_prefix="/api/skills")
+app.register_blueprint(
+    matching_bp,
+    url_prefix="/api/matching"
+)
+app.register_blueprint(
+    exchanges_bp,
+    url_prefix="/api/exchanges"
+)
 
 
 @app.route("/")

@@ -105,24 +105,54 @@
                     <p>根据技能方向，发现值得尝试的交换机会</p>
                 </div>
             </div>
-            <div class="skill-grid" id="recommendGrid"></div>
+            
+            <div class="skill-grid" id="recommendationsContainer">
+                <p class="empty-message">正在寻找适合你的技能交换伙伴...</p>
+            </div>
         </section>
+
+
 
         <!-- 交换页面 -->
         <section class="page-panel" id="exchangesPage">
+
             <div class="section-heading">
                 <div>
                     <h2>我的交换</h2>
                     <p>查看和管理你的技能交换</p>
                 </div>
             </div>
-            <div class="exchange-panel">
-                <div class="empty-icon">🤝</div>
-                <h3>还没有技能交换</h3>
-                <p>去技能大厅寻找感兴趣的技能，开启第一次交换吧！</p>
-                <button class="btn btn-primary" id="goHallBtn">浏览技能</button>
+
+            <div class="exchange-tabs">
+
+                <button
+                    class="exchange-tab active"
+                    data-exchange-tab="received"
+                >
+                    收到的申请
+                </button>
+
+                <button
+                    class="exchange-tab"
+                    data-exchange-tab="sent"
+                >
+                    发出的申请
+                </button>
+
             </div>
+
+            <div id="exchangesContainer">
+
+                <div class="exchange-panel">
+                    <div class="empty-icon">🤝</div>
+                    <h3>正在加载交换申请...</h3>
+                </div>
+
+            </div>
+
         </section>
+
+
 
         <!-- 个人中心 -->
         <section class="page-panel" id="profilePage">
